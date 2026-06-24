@@ -36,4 +36,4 @@ Primary tables are written to `paper/tables/catch_publication_experiments/`:
 The optional OOF audit runner writes seed/fold-level rows under
 `r/catch_oof_calibration/`, for example:
 
-- `seed_oof_calibration_oof_calibration.csv`
+- `oof_8dataset_audit/seed_oof_8dataset_audit_oof_calibration.csv`
