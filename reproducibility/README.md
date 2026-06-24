@@ -25,7 +25,8 @@ below creates local outputs that are ignored by Git.
 - CATCH diagnostic-scale fields are residual-calibrated weighting scales, not
   calibrated epistemic-uncertainty estimates.
 - `datasets_manifest.csv` records the main 30 target columns and dataset audit
-  metadata.
+  metadata. Its license-status field is conservative and should be finalized
+  before archival release or journal submission.
 - `data/external_validation20_20260624/clean20_manifest.csv` records the
   frozen External Validation 20 cohort, its fixed random seed, selected order,
   source/name-family keys, content hashes, and result-blind selection rule.

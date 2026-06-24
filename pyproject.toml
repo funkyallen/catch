@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "catch-tabular"
+version = "0.1.0"
+description = "CATCH reproducibility package for label-scarce tabular regression."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Jianwen Rui", email = "first91@163.com" },
+  { name = "Zhe Chu", email = "chuzhe@njcit.cn" },
+]
+dependencies = [
+  "numpy>=2.0,<3",
+  "pandas>=2.3",
+  "scikit-learn>=1.7",
+  "scipy>=1.16",
+  "matplotlib>=3.10",
+  "psutil>=5",
+  "requests>=2.32",
+]
+
+[project.optional-dependencies]
+full = [
+  "torch>=2.5",
+  "xgboost>=3.1",
+  "lightgbm>=4.6",
+  "catboost>=1.2",
+  "tabm>=0.0.3",
+  "autogluon.tabular>=1.5",
+]
+
+[project.urls]
+Repository = "https://github.com/funkyallen/catch"
+
+[tool.setuptools]
+packages = ["core"]

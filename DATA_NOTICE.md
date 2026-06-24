@@ -13,6 +13,10 @@ rule, source-family/name-family keys, pandas content hashes, and OpenML data
 IDs used by the reproduction scripts. The companion selection table records
 unusable downloads and duplicate rows without shipping generated result files.
 
+The main dataset manifest uses
+`verify_upstream_before_archival_or_submission` as a conservative license-status
+flag until source-specific redistribution terms are finalized.
+
 Generated result tables, figures, logs, trained artifacts, unselected retrieval
 outputs, raw source archives, and non-frozen external-validation alternatives
 are not included.

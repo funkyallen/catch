@@ -35,6 +35,18 @@ or:
 python -m pip install -r reproducibility/requirements.txt
 ```
 
+For editable local installs of the core package metadata:
+
+```powershell
+python -m pip install -e .
+```
+
+Install the full training stack with:
+
+```powershell
+python -m pip install -e ".[full]"
+```
+
 ## Reproduction
 
 Quick smoke check, without running the full experiment grid:
@@ -81,6 +93,15 @@ fetch helper writes the frozen manifest, dataset list, and metadata selection
 table; run `python scripts/audit_external_validation20.py` to verify the
 bundled manifest, file set, pandas content hashes, random-selection seed, and
 selection-rule field.
+
+The main dataset manifest marks dataset license status as
+`verify_upstream_before_archival_or_submission` until source-specific
+redistribution terms are finalized.
+
+## Citation
+
+Repository citation metadata are provided in `CITATION.cff`. The manuscript
+should be cited when bibliographic details are finalized.
 
 Before formal archival release or journal submission, verify redistribution
 terms for each bundled dataset and replace `LICENSE_PENDING.md` with the final
