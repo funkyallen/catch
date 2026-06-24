@@ -11,19 +11,13 @@ The main benchmark datasets are the CSV files listed in
 ## External Validation 20
 
 The External Validation 20 cohort is stored under
-`external_validation20_20260624/`. The included files are exactly the 20
-CSV datasets listed in `clean20_manifest.csv`, plus the frozen-cohort manifest
-and dataset list.
+`external_validation20/`. The included files are exactly the 20 CSV datasets
+listed in `manifest.csv`, plus the cohort dataset list.
 
-The manifest records a fixed-seed randomized OpenML construction rule: exclude
-main-benchmark source-family and prior-validation overlaps, exclude synthetic
-benchmark-generator rows, apply the fetch helper's task metadata filters,
-assign each eligible dataset a seeded pseudo-random rank key with
-`selection_seed=20260624`, skip duplicate pandas content hashes and duplicate
-name-family keys, and take the first 20 usable datasets in that queue. No model
-scores are used to construct this cohort. Re-running the fetch helper also writes
-`selection_table_metadata.csv`, which records the metadata-eligible queue,
-download/duplicate status, and final selected order.
+The manifest records the OpenML data ID, local path, target column used by the
+runner, row and feature counts, cohort order, access URL, and pandas content
+hash for each dataset. The audit helper checks that the bundled files still
+match those manifest fields before any external-validation rerun.
 
-No generated results, raw source archives, unselected retrieval outputs, or
-non-frozen extra datasets are included.
+No generated results, raw source archives, or non-bundled extra datasets are
+included.

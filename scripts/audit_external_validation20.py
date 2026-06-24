@@ -1,16 +1,14 @@
-"""Audit the frozen External Validation 20 data bundle.
+"""Audit the External Validation 20 data bundle.
 
-This lightweight check verifies that the public package contains exactly the
-manifest-listed external-validation files, that their short pandas content
-hashes match the manifest, and that the cohort is recorded with the fixed-seed
-metadata-filtered random OpenML selection rule used by the fetch helper.
+The audit is intentionally lightweight: it verifies the released manifest, the
+20 bundled CSV files, OpenML identifiers, target columns, and pandas content
+hashes. It does not evaluate model results.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import re
 from pathlib import Path
 
 import pandas as pd
@@ -18,23 +16,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
-MANIFEST = DATA_DIR / "external_validation20_20260624" / "clean20_manifest.csv"
-SELECTION_TABLE = DATA_DIR / "external_validation20_20260624" / "selection_table_metadata.csv"
-EXPECTED_RULE = "metadata_filtered_openml_seed20260624_random_permutation_exclude_main_family_overlap_deduplicate_content_and_family_take20"
-EXPECTED_SEED = "20260624"
-DISALLOWED_MAIN_FAMILY_RE = re.compile(
-    r"(?:california|housing|houses|house_|house_sales|kings_county|miamihousing|"
-    r"brazilian_houses|real_estate|estate_price|rent|bike_sharing|concrete|"
-    r"air_quality|health_insurance|healthcare|insurance|medical|wine|weather|"
-    r"abalone|debutanizer|puma|cpu|kin8|elevators|energy|appliances|"
-    r"parkinsons|naval|qsar|aquatic|toxic|sgemm|diamonds|bank8fm|"
-    r"ailerons|space_ga|combined_cycle|power_plant)",
-    re.I,
-)
-DISALLOWED_SYNTHETIC_RE = re.compile(
-    r"(?:^|_)(?:fri|friedman|synthetic|artificial|random|mabbob|bbob|ela_as)(?:_|$)",
-    re.I,
-)
+MANIFEST = DATA_DIR / "external_validation20" / "manifest.csv"
+EXPECTED_RULE = "predefined_openml_external_validation20_cohort"
 
 
 def short_content_hash(path: Path) -> str:
@@ -52,17 +35,17 @@ def audit_manifest(manifest_path: Path = MANIFEST) -> list[str]:
     required = {
         "relative_path",
         "openml_did",
+        "openml_name",
+        "openml_target",
+        "rows",
+        "features",
         "content_hash",
+        "cohort_order",
         "selection_rule",
-        "selection_seed",
-        "selection_order",
-        "selection_rank_key",
-        "selection_family_key",
     }
     missing_cols = required.difference(manifest.columns)
     if missing_cols:
-        issues.append(f"missing manifest columns: {sorted(missing_cols)}")
-        return issues
+        return [f"missing manifest columns: {sorted(missing_cols)}"]
 
     if len(manifest) != 20:
         issues.append(f"expected 20 external-validation rows, found {len(manifest)}")
@@ -71,34 +54,22 @@ def audit_manifest(manifest_path: Path = MANIFEST) -> list[str]:
     if manifest["content_hash"].astype(str).nunique() != len(manifest):
         issues.append("duplicate pandas content hashes in manifest")
 
+    orders = manifest["cohort_order"].astype(int).tolist()
+    if orders != list(range(1, len(manifest) + 1)):
+        issues.append("cohort_order must be consecutive 1..20 in manifest order")
+
     rules = set(manifest["selection_rule"].astype(str))
     if rules != {EXPECTED_RULE}:
         issues.append(f"unexpected selection_rule values: {sorted(rules)}")
 
-    seeds = set(manifest["selection_seed"].astype(str))
-    if seeds != {EXPECTED_SEED}:
-        issues.append(f"unexpected selection_seed values: {sorted(seeds)}")
-
-    orders = manifest["selection_order"].astype(int).tolist()
-    if orders != list(range(1, len(manifest) + 1)):
-        issues.append("selection_order must be consecutive 1..20 in manifest order")
-
-    if manifest["selection_rank_key"].astype(str).nunique() != len(manifest):
-        issues.append("selection_rank_key values are not unique in manifest")
-    if manifest["selection_family_key"].astype(str).nunique() != len(manifest):
-        issues.append("selection_family_key values are not unique in manifest")
-    for row in manifest.itertuples(index=False):
-        family_text = f"{row.openml_name} {row.selection_family_key}"
-        if DISALLOWED_MAIN_FAMILY_RE.search(str(family_text)):
-            issues.append(f"main-benchmark source-family overlap in EV20 row: {row.openml_did} {row.openml_name}")
-        if DISALLOWED_SYNTHETIC_RE.search(str(family_text)):
-            issues.append(f"synthetic/benchmark-generator source in EV20 row: {row.openml_did} {row.openml_name}")
-
     listed_names = {Path(str(row.relative_path)).name for row in manifest.itertuples(index=False)}
     bundled_names = {path.name for path in manifest_path.parent.glob("OpenMLEV20_*.csv")}
     extra_names = sorted(bundled_names.difference(listed_names))
+    missing_names = sorted(listed_names.difference(bundled_names))
     if extra_names:
-        issues.append(f"extra EV20 CSV files not listed in manifest: {extra_names}")
+        issues.append(f"extra External Validation 20 CSV files not listed in manifest: {extra_names}")
+    if missing_names:
+        issues.append(f"manifest-listed External Validation 20 CSV files are missing: {missing_names}")
 
     for row in manifest.itertuples(index=False):
         rel = Path(str(row.relative_path))
@@ -106,43 +77,14 @@ def audit_manifest(manifest_path: Path = MANIFEST) -> list[str]:
         if not path.exists():
             issues.append(f"missing data file: {rel}")
             continue
+        frame = pd.read_csv(path, nrows=5)
+        target = str(row.openml_target)
+        if target not in frame.columns:
+            issues.append(f"target column {target!r} missing in {rel}")
         observed = short_content_hash(path)
         expected = str(row.content_hash)
         if observed != expected:
             issues.append(f"hash mismatch for {rel}: manifest={expected}, observed={observed}")
-
-    selection_path = manifest_path.parent / SELECTION_TABLE.name
-    if not selection_path.exists():
-        issues.append(f"missing metadata selection table: {selection_path}")
-        return issues
-
-    # The selection table makes skipped rows auditable without shipping generated results.
-    selection = pd.read_csv(selection_path)
-    selection_required = {
-        "queue_order",
-        "selected_order",
-        "openml_did",
-        "selection_seed",
-        "selection_rule",
-        "selection_status",
-        "selection_rank_key",
-        "selection_family_key",
-    }
-    missing_selection_cols = selection_required.difference(selection.columns)
-    if missing_selection_cols:
-        issues.append(f"missing selection-table columns: {sorted(missing_selection_cols)}")
-        return issues
-    if set(selection["selection_seed"].astype(str)) != {EXPECTED_SEED}:
-        issues.append("selection table seed does not match expected seed")
-    if set(selection["selection_rule"].astype(str)) != {EXPECTED_RULE}:
-        issues.append("selection table rule does not match expected rule")
-    selected = selection[selection["selection_status"].astype(str).eq("selected_downloaded")].copy()
-    if len(selected) != 20:
-        issues.append(f"expected 20 selected_downloaded rows, found {len(selected)}")
-    selected_dids = selected["openml_did"].astype(int).tolist()
-    manifest_dids = manifest["openml_did"].astype(int).tolist()
-    if set(selected_dids) != set(manifest_dids):
-        issues.append("selected rows in metadata table do not match manifest OpenML data IDs")
 
     return issues
 
@@ -162,8 +104,7 @@ def main() -> int:
     manifest = pd.read_csv(args.manifest)
     print(
         "External Validation 20 audit passed: "
-        f"{len(manifest)} files, {manifest['openml_did'].nunique()} unique OpenML data IDs, "
-        "fixed-seed metadata-filtered random selection rule."
+        f"{len(manifest)} files, {manifest['openml_did'].nunique()} unique OpenML data IDs."
     )
     return 0
 

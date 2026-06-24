@@ -16,7 +16,7 @@ outputs.
 ```text
 core/              CATCH implementation, supervised and semi-supervised baselines
 experiments/catch/ Main runner and table-analysis script
-scripts/           OpenML External Validation 20 fetch and audit helpers
+scripts/           External Validation 20 audit helper
 tests/             Lightweight CATCH dispatch and analysis tests
 reproducibility/   Environment files, run scripts, seeds, manifests
 data/              Main 30 datasets and External Validation 20 datasets
@@ -94,17 +94,13 @@ scripts: the main 30 benchmark datasets and the 20-dataset External Validation 2
 OpenML cohort. See `DATA_NOTICE.md`, `data/README.md`, and
 `reproducibility/datasets_manifest.csv`.
 
-External Validation 20 is recorded as a frozen, fixed-seed randomized OpenML
-cohort: the fetch helper applies OpenML task metadata filters, excludes
-main-benchmark source-family and prior-validation overlaps, excludes synthetic
-benchmark-generator rows, assigns each eligible dataset a seeded pseudo-random
-rank key (`selection_seed=20260624`), skips duplicate pandas content hashes and
-duplicate name-family keys, and downloads the first 20 usable datasets in that
-queue. The helper does not use model scores to choose datasets. Re-running the
-fetch helper writes the frozen manifest, dataset list, and metadata selection
-table; run `python scripts/audit_external_validation20.py` to verify the
-bundled manifest, file set, pandas content hashes, random-selection seed, and
-selection-rule field.
+External Validation 20 is a bundled OpenML external-validation cohort kept
+separate from the main 30-dataset benchmark. The manifest records the exact
+OpenML data IDs, local files, target column used by the runner, row/feature
+counts, pandas content hashes, cohort order, and access URLs. Run
+`python scripts/audit_external_validation20.py` to verify the bundled manifest,
+file set, target columns, and content hashes before running the five-seed
+external-validation experiment.
 
 The main dataset manifest marks dataset license status as
 `verify_upstream_before_archival_or_submission` until source-specific

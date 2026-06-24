@@ -29,9 +29,9 @@ below creates local outputs that are ignored by Git.
 - `datasets_manifest.csv` records the main 30 target columns and dataset audit
   metadata. Its license-status field is conservative and should be finalized
   before archival release or journal submission.
-- `data/external_validation20_20260624/clean20_manifest.csv` records the
-  frozen External Validation 20 cohort, its fixed random seed, selected order,
-  source/name-family keys, content hashes, and result-blind selection rule.
+- `data/external_validation20/manifest.csv` records the External Validation 20
+  cohort, selected order, OpenML data IDs, target columns, access URLs, and
+  content hashes used by the public runner.
 - `seeds.csv` records the public seed cohorts used by the scripts.
 - The ordinary non-foundation method set is CATCH, AutoGluon, TabM, CatBoost,
   XGBoost, LightGBM, LapBoost, VIME, COREG, RankUp, and UCVME. TabPFN-v3 is

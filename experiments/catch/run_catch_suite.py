@@ -27,7 +27,7 @@ if str(ROOT) not in sys.path:
 
 DATA_DIR = ROOT / "data"
 MAIN_MANIFEST = ROOT / "reproducibility" / "datasets_manifest.csv"
-EXTERNAL_VALIDATION20_MANIFEST = DATA_DIR / "external_validation20_20260624" / "clean20_manifest.csv"
+EXTERNAL_VALIDATION20_MANIFEST = DATA_DIR / "external_validation20" / "manifest.csv"
 
 SEEDS_10 = [42, 123, 456, 789, 1011, 2027, 3141, 2718, 1618, 9001]
 
@@ -95,9 +95,18 @@ def _manifest_dataset_list(cohort: str = "main_30") -> list[str]:
 
 def _target_map() -> dict[str, str]:
     manifest = _main_manifest()
-    if manifest.empty:
-        return {}
-    return dict(zip(manifest["Dataset"].astype(str), manifest["Target"].astype(str)))
+    target_map: dict[str, str] = {}
+    if not manifest.empty:
+        target_map.update(dict(zip(manifest["Dataset"].astype(str), manifest["Target"].astype(str))))
+
+    external = _external_validation_manifest()
+    if not external.empty and {"relative_path", "openml_target"}.issubset(external.columns):
+        for row in external.itertuples(index=False):
+            rel = str(row.relative_path).replace("\\", "/")
+            target = str(row.openml_target)
+            target_map[rel] = target
+            target_map[Path(rel).name] = target
+    return target_map
 
 
 def _external_validation_dataset_list() -> list[str]:
