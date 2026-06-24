@@ -1,0 +1,42 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local environments
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Generated experiment outputs and logs
+r/
+results/
+outputs/
+raw_runs/
+logs/
+*.log
+
+# Generated paper artifacts and result tables
+paper/tables/
+paper/figures/
+paper/ieee_access_submission/*.aux
+paper/ieee_access_submission/*.bbl
+paper/ieee_access_submission/*.blg
+paper/ieee_access_submission/*.log
+paper/ieee_access_submission/*.out
+paper/ieee_access_submission/*.pdf
+
+# Model/checkpoint artifacts
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.pkl
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
