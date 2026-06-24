@@ -9,6 +9,6 @@ authors:
   - family-names: Chu
     given-names: Zhe
 repository-code: "https://github.com/funkyallen/catch"
-version: "submission-main-686f2c9"
+version: "submission-main-20260624"
 date-released: "2026-06-24"
 abstract: "Code, public tabular-regression data manifests, and reproduction scripts for the CATCH IEEE Access submission package."
