@@ -71,6 +71,10 @@ set: CATCH, AutoGluon, TabM, CatBoost, XGBoost, LightGBM, LapBoost, VIME,
 COREG, RankUp, and UCVME. TabPFN-v3 is an optional external reference and is
 not bundled with this code-and-data package.
 
+The ablation runner also exposes `CATCH-rho0-complement`, a fixed-`rho=0`
+eta-complement control for measuring the net contribution of the final scalar
+rho readout in a future full rerun.
+
 Implementation note: CATCH uses residual-calibrated diagnostic scales for
 support weighting. The CatBoost staged-response shape is an optimization-path
 diagnostic, not an independent-ensemble or epistemic-uncertainty estimate.

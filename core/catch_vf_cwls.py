@@ -417,9 +417,14 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
         # The returned "var" is a posterior-style diagnostic scale used by
         # downstream audit fields. It omits explicit branch covariance and
         # should not be interpreted as calibrated predictive uncertainty.
-        if prediction_mode in {"eta_norm_cwls", "eta_norm_fixed_average"}:
+        if prediction_mode in {"eta_norm_cwls", "eta_norm_fixed_average", "eta_norm_rho_zero"}:
             eta = float(np.clip(getattr(self, "rc_eta_hat_", 1.0), 0.0, 1.0))
-            rho = 0.5 if prediction_mode == "eta_norm_fixed_average" else float(np.clip(getattr(self, "rc_rho_", 0.5), 0.0, 1.0))
+            if prediction_mode == "eta_norm_fixed_average":
+                rho = 0.5
+            elif prediction_mode == "eta_norm_rho_zero":
+                rho = 0.0
+            else:
+                rho = float(np.clip(getattr(self, "rc_rho_", 0.5), 0.0, 1.0))
             h = (eta * mu_n + tree_mu) / (1.0 + eta)
             v_h = ((eta**2) * v_n + v_c) / ((1.0 + eta) ** 2)
             pred = rho * mu_n + (1.0 - rho) * h
@@ -451,6 +456,7 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
             "catch_no_eta_scale",
             "catch_no_cwls_fusion",
             "catch_no_u",
+            "catch_rho0_complement",
             "no_disagreement",
             "no_variance",
         }
@@ -463,12 +469,14 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
             "catch_no_eta_scale",
             "catch_no_cwls_fusion",
             "catch_no_u",
+            "catch_rho0_complement",
         }
         catch_ablation_modes = {
             "catch_no_target_calibration",
             "catch_no_eta_scale",
             "catch_no_cwls_fusion",
             "catch_no_u",
+            "catch_rho0_complement",
         }
         raw_target_modes = {"catch_no_target_calibration"}
         no_disagreement_modes = {
@@ -710,6 +718,8 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
             final_target_mode = "catch_ablation_no_cwls_fusion"
         elif mode == "catch_no_u":
             final_target_mode = "catch_ablation_no_unlabeled"
+        elif mode == "catch_rho0_complement":
+            final_target_mode = "catch_control_fixed_rho0_eta_complement"
         target_u = (
             eb_target_u_tilde.astype(np.float32)
             if eb_mode and len(X_u_sc)
@@ -743,9 +753,11 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
             "catch_no_target_calibration",
             "catch_no_cwls_fusion",
             "catch_no_u",
+            "catch_rho0_complement",
         }
         rc_fixed_eta_modes = {"catch_no_cwls_fusion"}
-        rc_rho_modes = (rc_eta_modes - rc_fixed_eta_modes) | {"catch_no_eta_scale"}
+        rc_fixed_rho_zero_modes = {"catch_rho0_complement"}
+        rc_rho_modes = (rc_eta_modes - rc_fixed_eta_modes - rc_fixed_rho_zero_modes) | {"catch_no_eta_scale"}
         eta_hat_final = float(eta_hat_target if mode in rc_eta_modes else 1.0)
         eta_hat_final = float(np.clip(np.nan_to_num(eta_hat_final, nan=1.0, posinf=1.0, neginf=0.0), 0.0, 1.0))
         v_tree_l = np.maximum(self.sigma2_c_ * r_c_l, float(self.variance_floor))
@@ -754,7 +766,7 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
         rc_rho_num = 0.0
         rc_rho_den = 0.0
 
-        if mode in rc_rho_modes or mode in rc_fixed_eta_modes:
+        if mode in rc_rho_modes or mode in rc_fixed_eta_modes or mode in rc_fixed_rho_zero_modes:
             # Final readout is a one-parameter constrained blend, not an unrestricted stacker.
             if mode in rc_eta_modes:
                 h_l = (eta_hat_final * n_l_pred + tree_l) / (1.0 + eta_hat_final)
@@ -767,7 +779,12 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
                 else:
                     h_u = np.array([], dtype=np.float64)
                     v_h_u = np.array([], dtype=np.float64)
-                self.final_prediction_mode_ = "eta_norm_fixed_average" if mode in rc_fixed_eta_modes else "eta_norm_cwls"
+                if mode in rc_fixed_eta_modes:
+                    self.final_prediction_mode_ = "eta_norm_fixed_average"
+                elif mode in rc_fixed_rho_zero_modes:
+                    self.final_prediction_mode_ = "eta_norm_rho_zero"
+                else:
+                    self.final_prediction_mode_ = "eta_norm_cwls"
             else:
                 h_l = tree_l
                 v_h_l = v_tree_l
@@ -776,6 +793,8 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
                 self.final_prediction_mode_ = "rho_cwls"
             if mode in rc_fixed_eta_modes:
                 rc_rho, rc_rho_num, rc_rho_den = 0.5, 0.0, 0.0
+            elif mode in rc_fixed_rho_zero_modes:
+                rc_rho, rc_rho_num, rc_rho_den = 0.0, 0.0, 0.0
             else:
                 rc_rho, rc_rho_num, rc_rho_den = self._closed_form_precision_rho(
                     y_l_sc,
@@ -793,7 +812,7 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
             )
         train_mse = _weighted_mse(y_l_sc, final_pred_l)
         if len(X_u_sc):
-            if self.final_prediction_mode_ == "eta_norm_cwls":
+            if self.final_prediction_mode_ in {"eta_norm_cwls", "eta_norm_rho_zero"}:
                 final_pred_u = rc_rho * n_u_pred + (1.0 - rc_rho) * h_u
                 final_var_u = (rc_rho**2) * np.maximum(self.sigma2_n_ * r_n_u, float(self.variance_floor)) + (
                     (1.0 - rc_rho) ** 2
@@ -909,12 +928,16 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
                 "y_hat=rho*g+(1-rho)*((eta*g+t)/(1+eta))"
                 if self.final_prediction_mode_ == "eta_norm_cwls"
                 else (
+                    "y_hat=(eta*g+t)/(1+eta)"
+                    if self.final_prediction_mode_ == "eta_norm_rho_zero"
+                    else (
                     "y_hat=0.5*g+0.5*((eta*g+t)/(1+eta))"
                     if self.final_prediction_mode_ == "eta_norm_fixed_average"
                     else (
                     "y_hat=rho*g+(1-rho)*t"
                     if self.final_prediction_mode_ == "rho_cwls"
                     else "y_hat=0.5*n_theta+0.5*c_phi, T_phi=(a_phi,c_phi)"
+                )
                 )
                 )
             ),
@@ -924,10 +947,14 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
                 "q_objective": float(train_mse),
             },
             "final_weights": {
-                "barycentric_neural": float(rc_rho) if self.final_prediction_mode_ in {"eta_norm_cwls", "rho_cwls"} else 0.5,
-                "barycentric_tree_complement": float(1.0 - rc_rho) if self.final_prediction_mode_ in {"eta_norm_cwls", "rho_cwls"} else 0.5,
+                "barycentric_neural": float(rc_rho)
+                if self.final_prediction_mode_ in {"eta_norm_cwls", "eta_norm_rho_zero", "rho_cwls"}
+                else 0.5,
+                "barycentric_tree_complement": float(1.0 - rc_rho)
+                if self.final_prediction_mode_ in {"eta_norm_cwls", "eta_norm_rho_zero", "rho_cwls"}
+                else 0.5,
                 "eta_normalized_complement": float(eta_hat_final)
-                if self.final_prediction_mode_ in {"eta_norm_cwls", "eta_norm_fixed_average"}
+                if self.final_prediction_mode_ in {"eta_norm_cwls", "eta_norm_rho_zero", "eta_norm_fixed_average"}
                 else 1.0,
             },
             "diagnostics": dict(metrics),
@@ -967,6 +994,11 @@ class CATCHNoEtaScaleRegressor(CATCHVFCWLSRegressor):
 class CATCHNoCWLSFusionRegressor(CATCHVFCWLSRegressor):
     METHOD_NAME = "CATCH-no-CWLS-fusion"
     ABLATION_MODE = "catch_no_cwls_fusion"
+
+
+class CATCHRhoZeroComplementRegressor(CATCHVFCWLSRegressor):
+    METHOD_NAME = "CATCH-rho0-complement"
+    ABLATION_MODE = "catch_rho0_complement"
 
 
 class CATCHNoUnlabeledRegressor(CATCHVFCWLSRegressor):

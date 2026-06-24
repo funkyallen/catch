@@ -59,6 +59,7 @@ CATCH_ABLATION_METHODS = [
     "CATCH-no-target-calibration",
     "CATCH-no-eta-scale",
     "CATCH-no-CWLS-fusion",
+    "CATCH-rho0-complement",
     "CATCH-no-U",
     "CATCH-no-disagreement-variance",
     "CATCH-no-support-variance",
@@ -348,6 +349,10 @@ def catch_ablation_component_deltas(pairwise: pd.DataFrame) -> pd.DataFrame:
         "CATCH-no-CWLS-fusion": (
             "CWLS constrained fusion",
             "isolated marginal effect of constrained scalar fusion",
+        ),
+        "CATCH-rho0-complement": (
+            "rho readout over fixed eta complement",
+            "net effect of learning rho relative to the fixed rho=0 eta-normalized complement",
         ),
         "CATCH-no-U": (
             "training-side unlabeled covariate support",

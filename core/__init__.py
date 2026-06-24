@@ -8,6 +8,7 @@ from core.catch_vf_cwls import (
     CATCHNoTargetCalibrationRegressor,
     CATCHNoUnlabeledRegressor,
     CATCHRegressor,
+    CATCHRhoZeroComplementRegressor,
     CATCHVFCWLSRegressor,
 )
 
@@ -17,6 +18,7 @@ __all__ = [
     "CATCHNoTargetCalibrationRegressor",
     "CATCHNoEtaScaleRegressor",
     "CATCHNoCWLSFusionRegressor",
+    "CATCHRhoZeroComplementRegressor",
     "CATCHNoUnlabeledRegressor",
     "CATCHNoDisagreementVarianceRegressor",
     "CATCHNoSupportVarianceRegressor",

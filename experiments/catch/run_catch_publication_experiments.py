@@ -68,6 +68,7 @@ CATCH_ABLATION_METHODS = [
     "CATCH-no-target-calibration",
     "CATCH-no-eta-scale",
     "CATCH-no-CWLS-fusion",
+    "CATCH-rho0-complement",
     "CATCH-no-U",
     "CATCH-no-disagreement-variance",
     "CATCH-no-support-variance",

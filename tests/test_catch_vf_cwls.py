@@ -14,6 +14,7 @@ from core.catch_vf_cwls import (
     CATCHNoTargetCalibrationRegressor,
     CATCHNoUnlabeledRegressor,
     CATCHRegressor,
+    CATCHRhoZeroComplementRegressor,
     CATCHVFCWLSRegressor,
 )
 from experiments.catch.run_catch_suite import build_catch_method, canonical_method_name, method_role
@@ -26,6 +27,7 @@ class CATCHVFCWLSTest(unittest.TestCase):
             CATCHNoTargetCalibrationRegressor: ("CATCH-no-target-calibration", "catch_no_target_calibration"),
             CATCHNoEtaScaleRegressor: ("CATCH-no-eta-scale", "catch_no_eta_scale"),
             CATCHNoCWLSFusionRegressor: ("CATCH-no-CWLS-fusion", "catch_no_cwls_fusion"),
+            CATCHRhoZeroComplementRegressor: ("CATCH-rho0-complement", "catch_rho0_complement"),
             CATCHNoUnlabeledRegressor: ("CATCH-no-U", "catch_no_u"),
             CATCHNoDisagreementVarianceRegressor: ("CATCH-no-disagreement-variance", "no_disagreement"),
             CATCHNoSupportVarianceRegressor: ("CATCH-no-support-variance", "no_variance"),
@@ -42,6 +44,7 @@ class CATCHVFCWLSTest(unittest.TestCase):
             "CATCH-no-target-calibration": "internal_mechanism_check_catch_no_target_calibration",
             "CATCH-no-eta-scale": "internal_mechanism_check_catch_no_eta_scale",
             "CATCH-no-CWLS-fusion": "internal_mechanism_check_catch_no_cwls_fusion",
+            "CATCH-rho0-complement": "internal_mechanism_check_catch_fixed_rho0_eta_complement",
             "CATCH-no-U": "internal_mechanism_check_catch_no_u",
             "CATCH-no-disagreement-variance": "internal_mechanism_check_catch_no_disagreement_variance",
             "CATCH-no-support-variance": "internal_mechanism_check_catch_no_support_variance",

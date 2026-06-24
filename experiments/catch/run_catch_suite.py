@@ -64,6 +64,7 @@ CATCH_ABLATION_METHODS = [
     "CATCH-no-target-calibration",
     "CATCH-no-eta-scale",
     "CATCH-no-CWLS-fusion",
+    "CATCH-rho0-complement",
     "CATCH-no-U",
     "CATCH-no-disagreement-variance",
     "CATCH-no-support-variance",
@@ -420,6 +421,7 @@ def build_catch_method(method_name, seed, input_dim, params=None, verbose=False)
         CATCHNoTargetCalibrationRegressor,
         CATCHNoUnlabeledRegressor,
         CATCHRegressor,
+        CATCHRhoZeroComplementRegressor,
         CATCHVFCWLSRegressor,
     )
 
@@ -429,6 +431,7 @@ def build_catch_method(method_name, seed, input_dim, params=None, verbose=False)
         "CATCH-no-target-calibration": CATCHNoTargetCalibrationRegressor,
         "CATCH-no-eta-scale": CATCHNoEtaScaleRegressor,
         "CATCH-no-CWLS-fusion": CATCHNoCWLSFusionRegressor,
+        "CATCH-rho0-complement": CATCHRhoZeroComplementRegressor,
         "CATCH-no-U": CATCHNoUnlabeledRegressor,
         "CATCH-no-disagreement-variance": CATCHNoDisagreementVarianceRegressor,
         "CATCH-no-support-variance": CATCHNoSupportVarianceRegressor,
@@ -458,6 +461,7 @@ ROLE_BY_METHOD = {
     "CATCH-no-target-calibration": "internal_mechanism_check_catch_no_target_calibration",
     "CATCH-no-eta-scale": "internal_mechanism_check_catch_no_eta_scale",
     "CATCH-no-CWLS-fusion": "internal_mechanism_check_catch_no_cwls_fusion",
+    "CATCH-rho0-complement": "internal_mechanism_check_catch_fixed_rho0_eta_complement",
     "CATCH-no-U": "internal_mechanism_check_catch_no_u",
     "CATCH-no-disagreement-variance": "internal_mechanism_check_catch_no_disagreement_variance",
     "CATCH-no-support-variance": "internal_mechanism_check_catch_no_support_variance",
