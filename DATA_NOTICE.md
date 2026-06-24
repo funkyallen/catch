@@ -16,8 +16,14 @@ The main dataset manifest uses
 `verify_upstream_before_archival_or_submission` as a conservative license-status
 flag until source-specific redistribution terms are finalized.
 
+The repository software is released under the MIT License. This software
+license does not relicense the bundled third-party public datasets; each
+dataset remains subject to its upstream terms, and the manifests record source
+identifiers and access URLs where available.
+
 Generated result tables, figures, logs, trained artifacts, raw source archives,
 and non-bundled external-validation alternatives are not included.
 
 Before formal archival release or journal submission, verify the redistribution
-terms for every bundled dataset and update the project license.
+terms for every bundled dataset and, if required, replace raw CSV redistribution
+with retrieval/preprocessing scripts plus hashes.

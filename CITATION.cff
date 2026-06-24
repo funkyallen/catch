@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this code or data package, please cite the associated manuscript and this repository."
 title: "CATCH: Audit-Oriented Complementary Neural-Tree Fusion for Label-Scarce Tabular Regression"
 type: software
+license: MIT
 authors:
   - family-names: Rui
     given-names: Jianwen

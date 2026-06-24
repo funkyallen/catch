@@ -34,6 +34,21 @@ from experiments.catch.run_catch_suite import (  # noqa: E402
 
 DEFAULT_METHODS = ["CATCH", "AutoGluon", "CatBoost", "CATCH-rho0-complement"]
 DEFAULT_SEEDS = [42, 123, 456]
+PAPER_AUDIT_DATASETS = [
+    "OpenML_airfoil_self_noise.csv",
+    "OpenML_debutanizer.csv",
+    "SGEMM_GPU.csv",
+    "Review_QSAR_Aquatic_Toxicity.csv",
+    "Review_Real_Estate_Valuation.csv",
+    "Review_Appliances_Energy.csv",
+    "OpenML_wine_quality.csv",
+    "Review_Energy_Efficiency.csv",
+]
+PAPER_AUDIT_SELECTION_RULE = (
+    "Eight-dataset paper audit set covering four favorable cases, one mixed "
+    "case, and three known weak cases; used as a stress audit, not as a "
+    "probability sample."
+)
 
 
 def build_fold_payload(
@@ -83,7 +98,7 @@ def build_fold_payload(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--datasets", nargs="+", default=None)
+    parser.add_argument("--datasets", nargs="+", default=None, help=PAPER_AUDIT_SELECTION_RULE)
     parser.add_argument("--methods", nargs="+", default=DEFAULT_METHODS)
     parser.add_argument("--seeds", nargs="+", type=int, default=DEFAULT_SEEDS)
     parser.add_argument("--folds", type=int, default=5)

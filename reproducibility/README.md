@@ -27,8 +27,8 @@ below creates local outputs that are ignored by Git.
 - CATCH diagnostic-scale fields are residual-calibrated weighting scales, not
   calibrated epistemic-uncertainty estimates.
 - `datasets_manifest.csv` records the main 30 target columns and dataset audit
-  metadata. Its license-status field is conservative and should be finalized
-  before archival release or journal submission.
+  metadata. Its license-status field is conservative and should be checked
+  against upstream dataset terms before archival release.
 - `data/external_validation20/manifest.csv` records the External Validation 20
   cohort, selected order, OpenML data IDs, target columns, access URLs, and
   content hashes used by the public runner.

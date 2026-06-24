@@ -106,11 +106,13 @@ The main dataset manifest marks dataset license status as
 `verify_upstream_before_archival_or_submission` until source-specific
 redistribution terms are finalized.
 
+## License
+
+The repository software is released under the MIT License. Bundled public
+datasets remain subject to their upstream terms; see `DATA_NOTICE.md` and the
+dataset manifests for source and provenance metadata.
+
 ## Citation
 
 Repository citation metadata are provided in `CITATION.cff`. The manuscript
 should be cited when bibliographic details are finalized.
-
-Before formal archival release or journal submission, verify redistribution
-terms for each bundled dataset and replace `LICENSE_PENDING.md` with the final
-project license.

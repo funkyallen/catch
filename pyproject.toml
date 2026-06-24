@@ -8,9 +8,16 @@ version = "0.1.0"
 description = "CATCH reproducibility package for label-scarce tabular regression."
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 authors = [
   { name = "Jianwen Rui", email = "first91@163.com" },
   { name = "Zhe Chu", email = "chuzhe@njcit.cn" },
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
   "numpy>=2.0,<3",
