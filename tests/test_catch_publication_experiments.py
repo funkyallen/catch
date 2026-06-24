@@ -24,6 +24,10 @@ analysis = load_module(
     "catch_publication_analysis_for_tests",
     "experiments/catch/analyze_catch_publication_experiments.py",
 )
+oof_check = load_module(
+    "catch_oof_calibration_check_for_tests",
+    "experiments/catch/run_oof_calibration_check.py",
+)
 
 
 class CatchPublicationExperimentTest(unittest.TestCase):
@@ -84,6 +88,13 @@ class CatchPublicationExperimentTest(unittest.TestCase):
             )
             self.assertEqual(estimator.METHOD_NAME, method)
             self.assertTrue(run_suite.method_role(method).startswith("internal_mechanism_check"))
+
+    def test_oof_audit_defaults_are_paper_facing(self):
+        self.assertEqual(
+            oof_check.DEFAULT_METHODS,
+            ["CATCH", "AutoGluon", "CatBoost", "CATCH-rho0-complement"],
+        )
+        self.assertEqual(oof_check.DEFAULT_SEEDS, [42, 123, 456])
 
     def test_analysis_tables_from_seed_rows(self):
         rows = []

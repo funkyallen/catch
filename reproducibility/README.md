@@ -14,6 +14,8 @@ below creates local outputs that are ignored by Git.
 - CATCH ablation: target calibration, eta scaling, CWLS fusion, unlabeled data,
   disagreement-scale diagnostics, and support-scale diagnostics.
 - External Validation 20: final 20 OpenML regression datasets, five seeds.
+- Optional OOF audit: outer K-fold held-out evaluation for selected datasets,
+  methods, and seeds.
 
 ## Protocol Notes
 
@@ -56,6 +58,13 @@ Full reproduction entry points:
 powershell -ExecutionPolicy Bypass -File reproducibility/run_main.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_ablation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_external_validation.ps1 -Python python
+powershell -ExecutionPolicy Bypass -File reproducibility/run_oof_audit.ps1 -Python python
+```
+
+Optional OOF audit example:
+
+```powershell
+python experiments/catch/run_oof_calibration_check.py --datasets OpenML_airfoil_self_noise.csv Review_Real_Estate_Valuation.csv --methods CATCH AutoGluon CatBoost CATCH-rho0-complement --seeds 42 123 --folds 5
 ```
 
 See `expected_outputs.md` for generated table names.

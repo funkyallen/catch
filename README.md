@@ -62,9 +62,17 @@ tiny CatBoost+CATCH training smoke mandatory.
 powershell -ExecutionPolicy Bypass -File reproducibility/run_main.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_ablation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_external_validation.ps1 -Python python
+powershell -ExecutionPolicy Bypass -File reproducibility/run_oof_audit.ps1 -Python python
 ```
 
 Outputs are written under `r/` and `paper/tables/`, both ignored by Git.
+
+An auxiliary out-of-fold audit can be run directly when a reviewer asks for a
+held-out calibration/generalization check:
+
+```powershell
+python experiments/catch/run_oof_calibration_check.py --datasets OpenML_airfoil_self_noise.csv Review_Real_Estate_Valuation.csv --methods CATCH AutoGluon CatBoost CATCH-rho0-complement --seeds 42 123 --folds 5
+```
 
 The main publication runner covers the paper-facing non-foundation comparison
 set: CATCH, AutoGluon, TabM, CatBoost, XGBoost, LightGBM, LapBoost, VIME,
@@ -73,7 +81,7 @@ not bundled with this code-and-data package.
 
 The ablation runner also exposes `CATCH-rho0-complement`, a fixed-`rho=0`
 eta-complement control for measuring the net contribution of the final scalar
-rho readout in a future full rerun.
+rho readout. The OOF audit runner can include the same control.
 
 Implementation note: CATCH uses residual-calibrated diagnostic scales for
 support weighting. The CatBoost staged-response shape is an optimization-path

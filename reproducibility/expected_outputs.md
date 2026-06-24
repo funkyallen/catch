@@ -32,3 +32,8 @@ Primary tables are written to `paper/tables/catch_publication_experiments/`:
 - `external_validation_full_pairwise_vs_catch.csv`
 - `friedman.csv`
 - `diagnostics.csv`
+
+The optional OOF audit runner writes seed/fold-level rows under
+`r/catch_oof_calibration/`, for example:
+
+- `seed_oof_calibration_oof_calibration.csv`
