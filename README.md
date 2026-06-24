@@ -82,5 +82,6 @@ table; run `python scripts/audit_external_validation20.py` to verify the
 bundled manifest, file set, pandas content hashes, random-selection seed, and
 selection-rule field.
 
-Before making the repository public, verify redistribution terms for each
-bundled dataset and replace `LICENSE_PENDING.md` with the final project license.
+Before formal archival release or journal submission, verify redistribution
+terms for each bundled dataset and replace `LICENSE_PENDING.md` with the final
+project license.

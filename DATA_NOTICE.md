@@ -17,5 +17,5 @@ Generated result tables, figures, logs, trained artifacts, unselected retrieval
 outputs, raw source archives, and non-frozen external-validation alternatives
 are not included.
 
-Before public release, verify the redistribution terms for every bundled
-dataset and update the project license.
+Before formal archival release or journal submission, verify the redistribution
+terms for every bundled dataset and update the project license.
