@@ -1,7 +1,7 @@
 # Data Notice
 
-This package includes only the public tabular-regression datasets needed by the
-slim CATCH reproduction scripts:
+This package includes only the public tabular datasets needed by the slim CATCH
+reproduction scripts:
 
 - 30 main benchmark CSV files listed in `reproducibility/datasets_manifest.csv`.
 - 20 External Validation 20 OpenML CSV files listed in
@@ -9,8 +9,10 @@ slim CATCH reproduction scripts:
 
 External Validation 20 is a bundled OpenML cohort kept separate from the main
 benchmark. The public manifest records the OpenML data IDs, local file paths,
-target columns, row/feature counts, cohort order, access URLs, and pandas
-content hashes used by the reproduction scripts.
+runner target columns, task-type notes, row/feature counts, cohort order, access
+URLs, and pandas content hashes used by the reproduction scripts. The cohort
+contains 19 ordinary numeric-target regression tasks and one declared derived
+credit-amount regression stress task from OpenML `credit_g`.
 
 The main dataset manifest uses
 `verify_upstream_before_archival_or_submission` as a conservative license-status

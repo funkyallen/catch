@@ -13,7 +13,9 @@ below creates local outputs that are ignored by Git.
 - Label-ratio and unlabeled-contamination sweeps on the same main datasets.
 - CATCH ablation: target calibration, eta scaling, CWLS fusion, unlabeled data,
   disagreement-scale diagnostics, and support-scale diagnostics.
-- External Validation 20: final 20 OpenML regression datasets, five seeds.
+- External Validation 20: 20 OpenML tables, five seeds; 19 ordinary
+  numeric-target regression tasks and one declared derived credit-amount
+  regression stress task from OpenML `credit_g`.
 - Optional OOF audit: outer K-fold held-out evaluation for selected datasets,
   methods, and seeds.
 
@@ -30,8 +32,8 @@ below creates local outputs that are ignored by Git.
   metadata. Its license-status field is conservative and should be checked
   against upstream dataset terms before archival release.
 - `data/external_validation20/manifest.csv` records the External Validation 20
-  cohort, selected order, OpenML data IDs, target columns, access URLs, and
-  content hashes used by the public runner.
+  cohort, selected order, OpenML data IDs, runner target columns, task-type
+  notes, access URLs, and content hashes used by the public runner.
 - `seeds.csv` records the public seed cohorts used by the scripts.
 - The ordinary non-foundation method set is CATCH, AutoGluon, TabM, CatBoost,
   XGBoost, LightGBM, LapBoost, VIME, COREG, RankUp, and UCVME. TabPFN-v3 is
