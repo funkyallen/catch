@@ -63,6 +63,7 @@ powershell -ExecutionPolicy Bypass -File reproducibility/run_main.ps1 -Python py
 powershell -ExecutionPolicy Bypass -File reproducibility/run_ablation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_external_validation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_oof_audit.ps1 -Python python
+powershell -ExecutionPolicy Bypass -File reproducibility/run_openml50_autogluon_catch.ps1 -Python python -PlanOnly
 ```
 
 Outputs are written under `r/` and `paper/tables/`, both ignored by Git.
@@ -82,6 +83,12 @@ not bundled with this code-and-data package.
 The ablation runner also exposes `CATCH-rho0-complement`, a fixed-`rho=0`
 eta-complement control for measuring the net contribution of the final scalar
 rho readout. The OOF audit runner can include the same control.
+
+The optional OpenML-50 runner is a focused CATCH-vs-AutoGluon expansion:
+50 OpenML data IDs, 10 seeds, and two methods. The first local build can use a
+downloaded source pool via `-SourcePool`; later runs can rebuild missing CSVs
+from the committed manifest through scikit-learn's OpenML interface. Generated
+OpenML-50 CSV files and result tables are local artifacts and are not committed.
 
 Implementation note: CATCH uses residual-calibrated diagnostic scales for
 support weighting. The CatBoost staged-response shape is an optimization-path

@@ -30,6 +30,10 @@ Primary tables are written to `paper/tables/catch_publication_experiments/`:
 - `external_validation_full_dataset_method_mean.csv`
 - `external_validation_full_method_summary.csv`
 - `external_validation_full_pairwise_vs_catch.csv`
+- `openml50_benchmark_full_seed_combined.csv`
+- `openml50_benchmark_full_dataset_method_mean.csv`
+- `openml50_benchmark_full_method_summary.csv`
+- `openml50_benchmark_full_pairwise_vs_catch.csv`
 - `friedman.csv`
 - `diagnostics.csv`
 

@@ -6,6 +6,9 @@ reproduction scripts:
 - 30 main benchmark CSV files listed in `reproducibility/datasets_manifest.csv`.
 - 20 additional OpenML cohort CSV files listed in
   `data/external_validation20/manifest.csv`.
+- An optional OpenML-50 manifest in `data/openml50_benchmark/manifest.csv`.
+  Its CSV files are locally generated for the focused CATCH-vs-AutoGluon
+  expansion and are ignored by Git.
 
 The additional OpenML cohort is kept separate from the main benchmark. The
 folder name `external_validation20/` is retained for script compatibility with
@@ -26,7 +29,8 @@ dataset remains subject to its upstream terms, and the manifests record source
 identifiers and access URLs where available.
 
 Generated result tables, figures, logs, trained artifacts, raw source archives,
-and non-bundled additional-cohort alternatives are not included.
+locally generated OpenML-50 CSV files, and non-bundled additional-cohort
+alternatives are not included.
 
 Before formal archival release or journal submission, verify the redistribution
 terms for every bundled dataset and, if required, replace raw CSV redistribution

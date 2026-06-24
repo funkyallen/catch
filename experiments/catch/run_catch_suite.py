@@ -28,6 +28,7 @@ if str(ROOT) not in sys.path:
 DATA_DIR = ROOT / "data"
 MAIN_MANIFEST = ROOT / "reproducibility" / "datasets_manifest.csv"
 EXTERNAL_VALIDATION20_MANIFEST = DATA_DIR / "external_validation20" / "manifest.csv"
+OPENML50_MANIFEST = DATA_DIR / "openml50_benchmark" / "manifest.csv"
 
 SEEDS_10 = [42, 123, 456, 789, 1011, 2027, 3141, 2718, 1618, 9001]
 
@@ -59,6 +60,7 @@ EXTERNAL_VALIDATION_METHODS = [
     "RankUp",
     "UCVME",
 ]
+OPENML50_METHODS = ["CATCH", "AutoGluon"]
 CATCH_ABLATION_METHODS = [
     "CATCH",
     "CATCH-no-target-calibration",
@@ -85,6 +87,10 @@ def _external_validation_manifest() -> pd.DataFrame:
     return _read_csv(EXTERNAL_VALIDATION20_MANIFEST)
 
 
+def _openml50_manifest() -> pd.DataFrame:
+    return _read_csv(OPENML50_MANIFEST)
+
+
 def _manifest_dataset_list(cohort: str = "main_30") -> list[str]:
     manifest = _main_manifest()
     if manifest.empty:
@@ -106,6 +112,13 @@ def _target_map() -> dict[str, str]:
             target = str(row.openml_target)
             target_map[rel] = target
             target_map[Path(rel).name] = target
+    openml50 = _openml50_manifest()
+    if not openml50.empty and {"relative_path", "openml_target"}.issubset(openml50.columns):
+        for row in openml50.itertuples(index=False):
+            rel = str(row.relative_path).replace("\\", "/")
+            target = str(getattr(row, "runner_target", row.openml_target))
+            target_map[rel] = target
+            target_map[Path(rel).name] = target
     return target_map
 
 
@@ -116,8 +129,16 @@ def _external_validation_dataset_list() -> list[str]:
     return manifest["relative_path"].astype(str).tolist()
 
 
+def _openml50_dataset_list() -> list[str]:
+    manifest = _openml50_manifest()
+    if manifest.empty:
+        return []
+    return manifest["relative_path"].astype(str).tolist()
+
+
 DATASETS = _manifest_dataset_list("main_30")
 EXTERNAL_VALIDATION20_DATASETS = _external_validation_dataset_list()
+OPENML50_DATASETS = _openml50_dataset_list()
 TARGET_BY_DATASET = _target_map()
 
 
@@ -493,6 +514,7 @@ def experiment_methods(experiment, args) -> list[str]:
         "unlabeled_contamination": UNLABELED_CONTAMINATION_METHODS,
         "catch_ablation": CATCH_ABLATION_METHODS,
         "external_validation": EXTERNAL_VALIDATION_METHODS,
+        "openml50_benchmark": OPENML50_METHODS,
     }
     return list(mapping.get(str(experiment), []))
 
@@ -630,6 +652,8 @@ def datasets_for_experiment(experiment: str, args: argparse.Namespace) -> list[s
         return [str(item) for item in args.datasets]
     if experiment == "external_validation":
         return list(EXTERNAL_VALIDATION20_DATASETS)
+    if experiment == "openml50_benchmark":
+        return list(OPENML50_DATASETS)
     return list(DATASETS)
 
 
@@ -705,6 +729,7 @@ def parse_args() -> argparse.Namespace:
             "catch_ablation",
             "runtime_pareto",
             "external_validation",
+            "openml50_benchmark",
         ],
     )
     parser.add_argument("--profile", default="full")

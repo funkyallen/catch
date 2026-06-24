@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from experiments.catch.run_catch_suite import EXTERNAL_VALIDATION20_DATASETS, DATASETS, split_lanes
+from experiments.catch.run_catch_suite import EXTERNAL_VALIDATION20_DATASETS, OPENML50_DATASETS, DATASETS, split_lanes
 
 
 SEEDS_10 = ["42", "123", "456", "789", "1011", "2027", "3141", "2718", "1618", "9001"]
@@ -63,6 +63,8 @@ EXTERNAL_VALIDATION_METHODS = [
     "UCVME",
 ]
 
+OPENML50_METHODS = ["CATCH", "AutoGluon"]
+
 CATCH_ABLATION_METHODS = [
     "CATCH",
     "CATCH-no-target-calibration",
@@ -81,6 +83,7 @@ EXPERIMENT_METHODS = {
     "unlabeled_contamination": UNLABELED_CONTAMINATION_METHODS,
     "catch_ablation": CATCH_ABLATION_METHODS,
     "external_validation": EXTERNAL_VALIDATION_METHODS,
+    "openml50_benchmark": OPENML50_METHODS,
 }
 
 
@@ -98,6 +101,7 @@ def parse_args() -> argparse.Namespace:
             "catch_ablation",
             "runtime_pareto",
             "external_validation",
+            "openml50_benchmark",
         ],
     )
     parser.add_argument(
@@ -232,7 +236,12 @@ def main() -> int:
     args = parse_args()
     commands: list[tuple[str, str, list[str]]] = []
     for experiment in args.experiments:
-        default_datasets = EXTERNAL_VALIDATION20_DATASETS if experiment == "external_validation" else DATASETS
+        if experiment == "external_validation":
+            default_datasets = EXTERNAL_VALIDATION20_DATASETS
+        elif experiment == "openml50_benchmark":
+            default_datasets = OPENML50_DATASETS
+        else:
+            default_datasets = DATASETS
         selected_datasets = list(default_datasets if args.datasets is None else args.datasets)
         lane_specs = [
             (f"lane{idx}", lane_datasets)

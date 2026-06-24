@@ -25,3 +25,10 @@ rerun.
 
 No generated results, raw source archives, or non-bundled extra datasets are
 included.
+
+## OpenML-50 Benchmark
+
+`openml50_benchmark/manifest.csv` defines the optional 50-dataset
+CATCH-vs-AutoGluon expansion. The raw CSV files in that folder are generated
+locally by `scripts/build_openml50_benchmark.py` and ignored by Git. Use
+`scripts/audit_openml50_benchmark.py` before running the 50-dataset experiment.

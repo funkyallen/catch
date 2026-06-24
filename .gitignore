@@ -19,6 +19,10 @@ raw_runs/
 logs/
 *.log
 
+# Optional OpenML-50 benchmark CSVs are locally generated from the manifest.
+data/openml50_benchmark/*.csv
+!data/openml50_benchmark/manifest.csv
+
 # Generated paper artifacts and result tables
 paper/tables/
 paper/figures/

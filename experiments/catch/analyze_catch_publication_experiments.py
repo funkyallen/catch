@@ -24,6 +24,7 @@ DEFAULT_RUN_ROOTS = [
     ROOT / "r" / "catch_publication",
     ROOT / "r" / "catch_publication_ablation",
     ROOT / "r" / "catch_external_validation",
+    ROOT / "r" / "openml50_benchmark",
 ]
 DEFAULT_OUT_DIR = ROOT / "paper" / "tables" / "catch_publication_experiments"
 
@@ -54,6 +55,7 @@ EXTERNAL_VALIDATION_METHODS = [
     "RankUp",
     "UCVME",
 ]
+OPENML50_METHODS = ["CATCH", "AutoGluon"]
 CATCH_ABLATION_METHODS = [
     "CATCH",
     "CATCH-no-target-calibration",
@@ -240,6 +242,12 @@ def external_validation_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
     if ds.empty:
         return ds
     return ds[ds["Experiment"].astype(str).eq("external_validation") & ds["Protocol"].astype(str).eq("default")].reset_index(drop=True)
+
+
+def openml50_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
+    if ds.empty:
+        return ds
+    return ds[ds["Experiment"].astype(str).eq("openml50_benchmark") & ds["Protocol"].astype(str).eq("default")].reset_index(drop=True)
 
 
 def clone_tree_on_y(ds: pd.DataFrame) -> pd.DataFrame:
@@ -439,6 +447,7 @@ def main() -> int:
     main_ds = main_default_dataset_means(ds)
     ablation_ds = catch_ablation_dataset_means(ds)
     external_validation_ds = external_validation_dataset_means(ds)
+    openml50_ds = openml50_dataset_means(ds)
     simple_ds = clone_tree_on_y(main_ds)
     ablation_pairwise = pairwise_vs_reference(
         ablation_ds,
@@ -455,6 +464,11 @@ def main() -> int:
         seed["Experiment"].astype(str).eq("external_validation")
         & seed["Protocol"].astype(str).eq("default")
         & seed["Method"].astype(str).isin(EXTERNAL_VALIDATION_METHODS)
+    ].copy()
+    openml50_full_seed = seed[
+        seed["Experiment"].astype(str).eq("openml50_benchmark")
+        & seed["Protocol"].astype(str).eq("default")
+        & seed["Method"].astype(str).isin(OPENML50_METHODS)
     ].copy()
 
     out_dir = Path(args.out_dir)
@@ -482,6 +496,10 @@ def main() -> int:
         "external_validation_full_dataset_method_mean.csv": external_validation_ds,
         "external_validation_full_method_summary.csv": summarize_methods(external_validation_ds, EXTERNAL_VALIDATION_METHODS),
         "external_validation_full_pairwise_vs_catch.csv": pairwise_vs_reference(external_validation_ds, reference=args.reference, bootstrap_samples=args.bootstrap_samples, seed=args.bootstrap_seed),
+        "openml50_benchmark_full_seed_combined.csv": openml50_full_seed,
+        "openml50_benchmark_full_dataset_method_mean.csv": openml50_ds,
+        "openml50_benchmark_full_method_summary.csv": summarize_methods(openml50_ds, OPENML50_METHODS),
+        "openml50_benchmark_full_pairwise_vs_catch.csv": pairwise_vs_reference(openml50_ds, reference=args.reference, bootstrap_samples=args.bootstrap_samples, seed=args.bootstrap_seed),
         "friedman.csv": friedman_table(main_ds, [method for method in PUBLIC_MAIN_METHODS if method != "TabPFN-v3"]),
         "diagnostics.csv": diagnostic_summary(seed),
     }

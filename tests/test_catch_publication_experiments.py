@@ -89,6 +89,10 @@ class CatchPublicationExperimentTest(unittest.TestCase):
             self.assertEqual(estimator.METHOD_NAME, method)
             self.assertTrue(run_suite.method_role(method).startswith("internal_mechanism_check"))
 
+    def test_openml50_dispatch_is_two_method_comparison(self):
+        args = type("Args", (), {"methods": None, "profile": "full"})()
+        self.assertEqual(run_suite.experiment_methods("openml50_benchmark", args), ["CATCH", "AutoGluon"])
+
     def test_oof_audit_defaults_are_paper_facing(self):
         self.assertEqual(
             oof_check.DEFAULT_METHODS,
@@ -162,13 +166,33 @@ class CatchPublicationExperimentTest(unittest.TestCase):
                             "Time": 1.0,
                         }
                     )
+        for dataset_idx, dataset in enumerate(["h1.csv", "h2.csv"]):
+            for seed in [42, 123]:
+                for method, values in {"CATCH": [0.81, 0.83], "AutoGluon": [0.80, 0.82]}.items():
+                    value = values[dataset_idx] + (0.001 if seed == 123 else 0.0)
+                    rows.append(
+                        {
+                            "Experiment": "openml50_benchmark",
+                            "Protocol": "default",
+                            "Dataset": dataset,
+                            "Method": method,
+                            "Seed": seed,
+                            "Status": "ok",
+                            "R2": value,
+                            "RMSE": 1.0 - value,
+                            "MAE": 0.5 - value / 10.0,
+                            "Time": 1.0,
+                        }
+                    )
         seed_df = pd.DataFrame(rows)
 
         ds = analysis.dataset_means(seed_df)
         main_ds = analysis.main_default_dataset_means(ds)
         ablation_ds = analysis.catch_ablation_dataset_means(ds)
+        openml50_ds = analysis.openml50_dataset_means(ds)
         main_summary = analysis.summarize_methods(main_ds, analysis.PUBLIC_MAIN_METHODS)
         ablation_summary = analysis.summarize_methods(ablation_ds, analysis.CATCH_ABLATION_METHODS)
+        openml50_summary = analysis.summarize_methods(openml50_ds, analysis.OPENML50_METHODS)
         simple_summary = analysis.summarize_methods(
             analysis.clone_tree_on_y(main_ds),
             analysis.SIMPLE_FUSION_METHODS,
@@ -184,6 +208,7 @@ class CatchPublicationExperimentTest(unittest.TestCase):
         self.assertIn("UCVME", set(main_summary["Method"]))
         self.assertIn("CATCH-no-U", set(ablation_summary["Method"]))
         self.assertIn("CATCH-no-support-variance", set(ablation_summary["Method"]))
+        self.assertIn("AutoGluon", set(openml50_summary["Method"]))
         self.assertIn("Tree-on-Y", set(simple_summary["Method"]))
         self.assertIn("NN+Tree-Avg", set(simple_summary["Method"]))
         self.assertTrue((pairwise["Comparison"].str.startswith("CATCH vs ")).all())

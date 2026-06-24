@@ -16,6 +16,8 @@ below creates local outputs that are ignored by Git.
 - Additional OpenML cohort: 20 bundled OpenML tables, five seeds; 19 ordinary
   numeric-target regression tasks for the primary paper aggregate and one
   declared derived credit-amount regression stress task from OpenML `credit_g`.
+- Optional OpenML-50 CATCH-vs-AutoGluon expansion: 50 OpenML data IDs, 10
+  seeds, and two methods.
 - Optional OOF audit: outer K-fold held-out evaluation for selected datasets,
   methods, and seeds.
 
@@ -35,6 +37,8 @@ below creates local outputs that are ignored by Git.
   cohort, selected order, OpenML data IDs, runner target columns, task-type
   notes, access URLs, and content hashes used by the public runner. The folder
   name is retained for compatibility with the original 20-file bundle.
+- `data/openml50_benchmark/manifest.csv` records the optional OpenML-50
+  benchmark. Its raw CSV files are locally generated and ignored by Git.
 - `seeds.csv` records the public seed cohorts used by the scripts.
 - The ordinary non-foundation method set is CATCH, AutoGluon, TabM, CatBoost,
   XGBoost, LightGBM, LapBoost, VIME, COREG, RankUp, and UCVME. TabPFN-v3 is
@@ -55,6 +59,12 @@ Additional OpenML manifest audit only:
 python scripts/audit_external_validation20.py
 ```
 
+OpenML-50 plan and audit only:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File reproducibility/run_openml50_autogluon_catch.ps1 -Python python -PlanOnly
+```
+
 Full reproduction entry points:
 
 ```powershell
@@ -62,6 +72,7 @@ powershell -ExecutionPolicy Bypass -File reproducibility/run_main.ps1 -Python py
 powershell -ExecutionPolicy Bypass -File reproducibility/run_ablation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_external_validation.ps1 -Python python
 powershell -ExecutionPolicy Bypass -File reproducibility/run_oof_audit.ps1 -Python python
+powershell -ExecutionPolicy Bypass -File reproducibility/run_openml50_autogluon_catch.ps1 -Python python
 ```
 
 Optional OOF audit example:
