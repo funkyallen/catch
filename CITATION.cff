@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code or data package, please cite the associated manuscript and this repository."
-title: "CATCH: A Reliability-Calibrated Neural-Tree Complementary Learning Framework for Label-Scarce Tabular Regression with Auxiliary Unlabeled Covariates"
+title: "CATCH: Audit-Oriented Complementary Neural-Tree Fusion for Label-Scarce Tabular Regression"
 type: software
 authors:
   - family-names: Rui

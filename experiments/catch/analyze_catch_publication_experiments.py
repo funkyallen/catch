@@ -346,8 +346,8 @@ def catch_ablation_component_deltas(pairwise: pd.DataFrame) -> pd.DataFrame:
             "isolated marginal effect of eta-normalized complement construction",
         ),
         "CATCH-no-CWLS-fusion": (
-            "CWLS reliability fusion",
-            "isolated marginal effect of constrained reliability fusion",
+            "CWLS constrained fusion",
+            "isolated marginal effect of constrained scalar fusion",
         ),
         "CATCH-no-U": (
             "training-side unlabeled covariate support",

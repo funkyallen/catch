@@ -2,8 +2,8 @@
 
 Code and public data for reproducing the CATCH experiments:
 
-**CATCH: A Reliability-Calibrated Neural-Tree Complementary Learning Framework
-for Label-Scarce Tabular Regression with Auxiliary Unlabeled Covariates**
+**CATCH: Audit-Oriented Complementary Neural-Tree Fusion for Label-Scarce
+Tabular Regression**
 
 Repository: https://github.com/funkyallen/catch
 

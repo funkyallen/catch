@@ -18,7 +18,7 @@ from core.utils import set_seed
 
 
 class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
-    """Reliability-calibrated CATCH with one neural anchor and one vector tree."""
+    """Audit-oriented CATCH with one neural anchor and one vector tree."""
 
     METHOD_NAME = "CATCH-VF-CWLS"
     ABLATION_MODE = "full"
@@ -755,7 +755,7 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
         rc_rho_den = 0.0
 
         if mode in rc_rho_modes or mode in rc_fixed_eta_modes:
-            # Final readout is a one-parameter reliability blend, not an unrestricted stacker.
+            # Final readout is a one-parameter constrained blend, not an unrestricted stacker.
             if mode in rc_eta_modes:
                 h_l = (eta_hat_final * n_l_pred + tree_l) / (1.0 + eta_hat_final)
                 v_h_l = ((eta_hat_final**2) * v_n_l + v_tree_l) / ((1.0 + eta_hat_final) ** 2)
@@ -820,13 +820,16 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
 
         metrics = {
             "paper_method_family": self.METHOD_NAME,
+            # Public result metadata keeps the method name aligned with the
+            # conservative manuscript wording: these are diagnostic scales and
+            # a constrained scalar readout, not calibrated epistemic variances.
             "publication_expansion": (
-                "Reliability-Calibrated Complementary Target Covariance Weighted Least Squares"
+                "Audit-Oriented Complementary Target Constrained Weighted Least Squares"
                 if rc_mode
                 else "Complementary Anchored Tree Consensus as a Variational Field"
             ),
             "mode": (
-                "reliability_calibrated_cwls"
+                "diagnostic_constrained_cwls"
                 if rc_mode
                 else "barycentric_variational_field_cwls"
             ),
@@ -898,7 +901,7 @@ class CATCHVFCWLSRegressor(_CATCHBaseRegressor):
         self.catch_core_metrics_ = {
             "status": "ok",
             "mode": (
-                "reliability_calibrated_cwls"
+                "diagnostic_constrained_cwls"
                 if rc_mode
                 else "barycentric_variational_field_cwls"
             ),
