@@ -4,15 +4,17 @@ This package includes only the public tabular datasets needed by the slim CATCH
 reproduction scripts:
 
 - 30 main benchmark CSV files listed in `reproducibility/datasets_manifest.csv`.
-- 20 External Validation 20 OpenML CSV files listed in
+- 20 additional OpenML cohort CSV files listed in
   `data/external_validation20/manifest.csv`.
 
-External Validation 20 is a bundled OpenML cohort kept separate from the main
-benchmark. The public manifest records the OpenML data IDs, local file paths,
-runner target columns, task-type notes, row/feature counts, cohort order, access
-URLs, and pandas content hashes used by the reproduction scripts. The cohort
-contains 19 ordinary numeric-target regression tasks and one declared derived
-credit-amount regression stress task from OpenML `credit_g`.
+The additional OpenML cohort is kept separate from the main benchmark. The
+folder name `external_validation20/` is retained for script compatibility with
+the original 20-file reproducibility bundle. The primary paper aggregate uses
+19 ordinary numeric-target regression tasks; one declared derived credit-amount
+regression row from OpenML `credit_g` is documented separately as a stress task.
+The public manifest records the OpenML data IDs, local file paths, runner target
+columns, task-type notes, row/feature counts, cohort order, access URLs, and
+pandas content hashes used by the reproduction scripts.
 
 The main dataset manifest uses
 `verify_upstream_before_archival_or_submission` as a conservative license-status
@@ -24,7 +26,7 @@ dataset remains subject to its upstream terms, and the manifests record source
 identifiers and access URLs where available.
 
 Generated result tables, figures, logs, trained artifacts, raw source archives,
-and non-bundled external-validation alternatives are not included.
+and non-bundled additional-cohort alternatives are not included.
 
 Before formal archival release or journal submission, verify the redistribution
 terms for every bundled dataset and, if required, replace raw CSV redistribution

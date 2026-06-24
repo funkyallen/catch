@@ -31,7 +31,7 @@ Write-Host "[smoke] reading one bundled dataset and writing audit output"
   --log-dir "$SmokeRoot/audit" `
   --smoke
 
-Write-Host "[smoke] auditing External Validation 20 manifest and bundled files"
+Write-Host "[smoke] auditing additional OpenML cohort manifest and bundled files"
 & $Python scripts/audit_external_validation20.py
 
 $SeedFile = "$SmokeRoot/seed_smoke_fixture.csv"

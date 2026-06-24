@@ -16,10 +16,10 @@ outputs.
 ```text
 core/              CATCH implementation, supervised and semi-supervised baselines
 experiments/catch/ Main runner and table-analysis script
-scripts/           External Validation 20 audit helper
+scripts/           Additional OpenML cohort audit helper
 tests/             Lightweight CATCH dispatch and analysis tests
 reproducibility/   Environment files, run scripts, seeds, manifests
-data/              Main 30 datasets and External Validation 20 datasets
+data/              Main 30 datasets and additional OpenML cohort datasets
 ```
 
 ## Environment
@@ -90,19 +90,21 @@ diagnostic, not an independent-ensemble or epistemic-uncertainty estimate.
 ## Data
 
 The package keeps only the datasets required by the public CATCH reproduction
-scripts: the main 30 benchmark datasets and the 20-table External Validation 20
-OpenML cohort. See `DATA_NOTICE.md`, `data/README.md`, and
+scripts: the main 30 benchmark datasets and the additional OpenML cohort. See
+`DATA_NOTICE.md`, `data/README.md`, and
 `reproducibility/datasets_manifest.csv`.
 
-External Validation 20 is a bundled OpenML external-validation cohort kept
-separate from the main 30-dataset benchmark. The manifest records the exact
-OpenML data IDs, local files, target column used by the runner, task-type notes,
-row/feature counts, pandas content hashes, cohort order, and access URLs. It
-contains 19 ordinary numeric-target regression tasks and one declared derived
-credit-amount regression stress task from OpenML `credit_g`. Run
+The additional OpenML cohort is kept separate from the main 30-dataset
+benchmark. Its legacy folder name is `external_validation20/` because the
+original reproducibility bundle contains 20 files. The primary paper aggregate
+uses the 19 ordinary numeric-target regression tasks, while the derived
+credit-amount regression row from OpenML `credit_g` is documented as a separate
+stress task. The manifest records the exact OpenML data IDs, local files,
+runner target columns, task-type notes, row/feature counts, pandas content
+hashes, cohort order, and access URLs. Run
 `python scripts/audit_external_validation20.py` to verify the bundled manifest,
 file set, task-type notes, target columns, and content hashes before running the
-five-seed external-validation experiment.
+five-seed additional-cohort experiment.
 
 The main dataset manifest marks dataset license status as
 `verify_upstream_before_archival_or_submission` until source-specific

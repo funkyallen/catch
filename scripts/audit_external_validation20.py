@@ -1,8 +1,11 @@
-"""Audit the External Validation 20 data bundle.
+"""Audit the additional OpenML cohort data bundle.
 
 The audit is intentionally lightweight: it verifies the released manifest, the
 20 bundled CSV files, OpenML identifiers, runner target columns, task-type
-notes, and pandas content hashes. It does not evaluate model results.
+notes, and pandas content hashes. The legacy directory name is retained for
+reproducibility, but the paper reports the 19 ordinary numeric-regression tasks
+as the primary additional-cohort aggregate and treats the derived credit-g row
+as a separate stress task. The audit does not evaluate model results.
 """
 
 from __future__ import annotations
@@ -17,7 +20,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 MANIFEST = DATA_DIR / "external_validation20" / "manifest.csv"
-EXPECTED_RULE = "predefined_openml_external_validation20_cohort"
+EXPECTED_RULE = "predefined_additional_openml_cohort20"
 EXPECTED_TASK_TYPES = {
     "openml_numeric_regression_task",
     "derived_credit_amount_regression_stress_task",
@@ -54,7 +57,7 @@ def audit_manifest(manifest_path: Path = MANIFEST) -> list[str]:
         return [f"missing manifest columns: {sorted(missing_cols)}"]
 
     if len(manifest) != 20:
-        issues.append(f"expected 20 external-validation rows, found {len(manifest)}")
+        issues.append(f"expected 20 additional OpenML cohort rows, found {len(manifest)}")
     if manifest["openml_did"].nunique() != len(manifest):
         issues.append("duplicate OpenML data IDs in manifest")
     if manifest["content_hash"].astype(str).nunique() != len(manifest):
@@ -83,9 +86,9 @@ def audit_manifest(manifest_path: Path = MANIFEST) -> list[str]:
     extra_names = sorted(bundled_names.difference(listed_names))
     missing_names = sorted(listed_names.difference(bundled_names))
     if extra_names:
-        issues.append(f"extra External Validation 20 CSV files not listed in manifest: {extra_names}")
+        issues.append(f"extra additional-cohort CSV files not listed in manifest: {extra_names}")
     if missing_names:
-        issues.append(f"manifest-listed External Validation 20 CSV files are missing: {missing_names}")
+        issues.append(f"manifest-listed additional-cohort CSV files are missing: {missing_names}")
 
     for row in manifest.itertuples(index=False):
         rel = Path(str(row.relative_path))
@@ -118,14 +121,14 @@ def main() -> int:
 
     issues = audit_manifest(args.manifest)
     if issues:
-        print("External Validation 20 audit failed:")
+        print("Additional OpenML cohort audit failed:")
         for issue in issues:
             print(f"- {issue}")
         return 1
 
     manifest = pd.read_csv(args.manifest)
     print(
-        "External Validation 20 audit passed: "
+        "Additional OpenML cohort audit passed: "
         f"{len(manifest)} files, {manifest['openml_did'].nunique()} unique OpenML data IDs, "
         "19 ordinary numeric-regression tasks, and 1 declared derived credit-g stress task."
     )
