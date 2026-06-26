@@ -30,6 +30,14 @@ Primary tables are written to `paper/tables/catch_publication_experiments/`:
 - `external_validation_full_dataset_method_mean.csv`
 - `external_validation_full_method_summary.csv`
 - `external_validation_full_pairwise_vs_catch.csv`
+- `external_validation_minus_credit_g_seed_combined.csv`
+- `external_validation_minus_credit_g_dataset_method_mean.csv`
+- `external_validation_minus_credit_g_method_summary.csv`
+- `external_validation_minus_credit_g_pairwise_vs_catch.csv`
+- `external_validation_credit_g_stress_seed_combined.csv`
+- `external_validation_credit_g_stress_dataset_method_mean.csv`
+- `external_validation_credit_g_stress_method_summary.csv`
+- `external_validation_credit_g_stress_pairwise_vs_catch.csv`
 - `openml50_benchmark_full_seed_combined.csv`
 - `openml50_benchmark_full_dataset_method_mean.csv`
 - `openml50_benchmark_full_method_summary.csv`

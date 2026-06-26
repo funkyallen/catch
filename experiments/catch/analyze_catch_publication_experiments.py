@@ -56,6 +56,7 @@ EXTERNAL_VALIDATION_METHODS = [
     "UCVME",
 ]
 OPENML50_METHODS = ["CATCH", "AutoGluon"]
+EXTERNAL_VALIDATION_STRESS_MARKER = "OpenMLEV20_31_credit_g.csv"
 CATCH_ABLATION_METHODS = [
     "CATCH",
     "CATCH-no-target-calibration",
@@ -203,7 +204,10 @@ def load_audit_rows(audit_files: Iterable[Path]) -> pd.DataFrame:
 
 
 def completed_rows(seed: pd.DataFrame) -> pd.DataFrame:
-    ok = seed[seed["Status"].astype(str).eq("ok")].copy()
+    if "Status" in seed.columns:
+        ok = seed[seed["Status"].astype(str).eq("ok")].copy()
+    else:
+        ok = seed.copy()
     return ok[np.isfinite(pd.to_numeric(ok["R2"], errors="coerce"))].copy()
 
 
@@ -244,6 +248,24 @@ def external_validation_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
     return ds[ds["Experiment"].astype(str).eq("external_validation") & ds["Protocol"].astype(str).eq("default")].reset_index(drop=True)
 
 
+def external_validation_ordinary_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
+    """Return the ordinary OpenML numeric-regression rows, excluding credit_g."""
+    ev = external_validation_dataset_means(ds)
+    if ev.empty:
+        return ev
+    mask = ~ev["Dataset"].astype(str).str.contains(EXTERNAL_VALIDATION_STRESS_MARKER, regex=False)
+    return ev[mask].reset_index(drop=True)
+
+
+def external_validation_stress_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
+    """Return the declared derived credit_g stress row, if present."""
+    ev = external_validation_dataset_means(ds)
+    if ev.empty:
+        return ev
+    mask = ev["Dataset"].astype(str).str.contains(EXTERNAL_VALIDATION_STRESS_MARKER, regex=False)
+    return ev[mask].reset_index(drop=True)
+
+
 def openml50_dataset_means(ds: pd.DataFrame) -> pd.DataFrame:
     if ds.empty:
         return ds
@@ -279,6 +301,33 @@ def summarize_methods(ds: pd.DataFrame, methods: list[str]) -> pd.DataFrame:
             }
         )
     return pd.DataFrame(rows)
+
+
+def summarize_methods_with_ranks(ds: pd.DataFrame, methods: list[str]) -> pd.DataFrame:
+    """Summarize method means plus dataset-level best/top-3 counts."""
+    if ds.empty:
+        return pd.DataFrame()
+    ranked = ds[ds["Method"].isin(methods)].copy()
+    if ranked.empty:
+        return pd.DataFrame()
+    ranked["R2_Rank"] = ranked.groupby("Dataset")["Mean_R2"].rank(ascending=False, method="min")
+    rows = []
+    for method in methods:
+        part = ranked[ranked["Method"].astype(str).eq(method)]
+        if part.empty:
+            continue
+        rows.append(
+            {
+                "Method": method,
+                "Mean_R2": float(part["Mean_R2"].mean()),
+                "Median_R2": float(part["Mean_R2"].median()),
+                "Avg_Rank": float(part["R2_Rank"].mean()),
+                "Best_Count": int((part["R2_Rank"] == 1).sum()),
+                "Top3_Count": int((part["R2_Rank"] <= 3).sum()),
+                "Mean_Time_s": float(part["Mean_Time_s"].mean()),
+            }
+        )
+    return pd.DataFrame(rows).sort_values(["Mean_R2", "Avg_Rank"], ascending=[False, True]).reset_index(drop=True)
 
 
 def _holm_adjust(p_values: list[float]) -> list[float]:
@@ -342,6 +391,32 @@ def pairwise_vs_reference(
     return pd.DataFrame(rows).sort_values("Mean_Delta_R2", ascending=False).reset_index(drop=True)
 
 
+def pairwise_vs_reference_compact(ds: pd.DataFrame, reference: str = "CATCH") -> pd.DataFrame:
+    """Compact pairwise table used for the 19-task OpenML cohort narrative."""
+    pairwise = pairwise_vs_reference(ds, reference=reference)
+    if pairwise.empty:
+        return pairwise
+    renamed = pairwise.rename(
+        columns={
+            "Baseline": "Comparator",
+            "Win_Count": "Wins",
+            "Loss_Count": "Losses",
+            "Wilcoxon_p": "Raw_Wilcoxon_p",
+            "Wilcoxon_p_Holm": "Holm_Wilcoxon_p",
+        }
+    )
+    columns = [
+        "Comparator",
+        "Mean_Delta_R2",
+        "Median_Delta_R2",
+        "Wins",
+        "Losses",
+        "Raw_Wilcoxon_p",
+        "Holm_Wilcoxon_p",
+    ]
+    return renamed[columns].sort_values("Mean_Delta_R2", ascending=False).reset_index(drop=True)
+
+
 def catch_ablation_component_deltas(pairwise: pd.DataFrame) -> pd.DataFrame:
     if pairwise.empty:
         return pd.DataFrame()
@@ -355,11 +430,11 @@ def catch_ablation_component_deltas(pairwise: pd.DataFrame) -> pd.DataFrame:
             "isolated marginal effect of eta-normalized complement construction",
         ),
         "CATCH-no-CWLS-fusion": (
-            "CWLS constrained fusion",
-            "isolated marginal effect of constrained scalar fusion",
+            "learned rho readout versus fixed 0.5 blend",
+            "effect of replacing the learned constrained readout with an equal neural/complement blend; not a removal of the two-coordinate tree target",
         ),
         "CATCH-rho0-complement": (
-            "rho readout over fixed eta complement",
+            "learned rho readout versus complement-only",
             "net effect of learning rho relative to the fixed rho=0 eta-normalized complement",
         ),
         "CATCH-no-U": (
@@ -447,6 +522,8 @@ def main() -> int:
     main_ds = main_default_dataset_means(ds)
     ablation_ds = catch_ablation_dataset_means(ds)
     external_validation_ds = external_validation_dataset_means(ds)
+    external_validation_ordinary_ds = external_validation_ordinary_dataset_means(ds)
+    external_validation_stress_ds = external_validation_stress_dataset_means(ds)
     openml50_ds = openml50_dataset_means(ds)
     simple_ds = clone_tree_on_y(main_ds)
     ablation_pairwise = pairwise_vs_reference(
@@ -464,6 +541,12 @@ def main() -> int:
         seed["Experiment"].astype(str).eq("external_validation")
         & seed["Protocol"].astype(str).eq("default")
         & seed["Method"].astype(str).isin(EXTERNAL_VALIDATION_METHODS)
+    ].copy()
+    external_validation_ordinary_seed = external_validation_full_seed[
+        ~external_validation_full_seed["Dataset"].astype(str).str.contains(EXTERNAL_VALIDATION_STRESS_MARKER, regex=False)
+    ].copy()
+    external_validation_stress_seed = external_validation_full_seed[
+        external_validation_full_seed["Dataset"].astype(str).str.contains(EXTERNAL_VALIDATION_STRESS_MARKER, regex=False)
     ].copy()
     openml50_full_seed = seed[
         seed["Experiment"].astype(str).eq("openml50_benchmark")
@@ -496,6 +579,14 @@ def main() -> int:
         "external_validation_full_dataset_method_mean.csv": external_validation_ds,
         "external_validation_full_method_summary.csv": summarize_methods(external_validation_ds, EXTERNAL_VALIDATION_METHODS),
         "external_validation_full_pairwise_vs_catch.csv": pairwise_vs_reference(external_validation_ds, reference=args.reference, bootstrap_samples=args.bootstrap_samples, seed=args.bootstrap_seed),
+        "external_validation_minus_credit_g_seed_combined.csv": external_validation_ordinary_seed,
+        "external_validation_minus_credit_g_dataset_method_mean.csv": external_validation_ordinary_ds,
+        "external_validation_minus_credit_g_method_summary.csv": summarize_methods_with_ranks(external_validation_ordinary_ds, EXTERNAL_VALIDATION_METHODS),
+        "external_validation_minus_credit_g_pairwise_vs_catch.csv": pairwise_vs_reference_compact(external_validation_ordinary_ds, reference=args.reference),
+        "external_validation_credit_g_stress_seed_combined.csv": external_validation_stress_seed,
+        "external_validation_credit_g_stress_dataset_method_mean.csv": external_validation_stress_ds,
+        "external_validation_credit_g_stress_method_summary.csv": summarize_methods_with_ranks(external_validation_stress_ds, EXTERNAL_VALIDATION_METHODS),
+        "external_validation_credit_g_stress_pairwise_vs_catch.csv": pairwise_vs_reference_compact(external_validation_stress_ds, reference=args.reference),
         "openml50_benchmark_full_seed_combined.csv": openml50_full_seed,
         "openml50_benchmark_full_dataset_method_mean.csv": openml50_ds,
         "openml50_benchmark_full_method_summary.csv": summarize_methods(openml50_ds, OPENML50_METHODS),

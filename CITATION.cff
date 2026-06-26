@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code or data package, please cite the associated manuscript and this repository."
-title: "CATCH: Audit-Oriented Complementary Neural-Tree Fusion for Label-Scarce Tabular Regression"
+title: "CATCH: Transparent Neural-Tree Complementation for Failure-Aware Label-Scarce Tabular Regression"
 type: software
 license: MIT
 authors:
@@ -10,6 +10,6 @@ authors:
   - family-names: Chu
     given-names: Zhe
 repository-code: "https://github.com/funkyallen/catch"
-version: "submission-main-20260624"
-date-released: "2026-06-24"
+version: "v0.1.0"
+date-released: "2026-06-26"
 abstract: "Code, public tabular-regression data manifests, and reproduction scripts for the CATCH IEEE Access submission package."

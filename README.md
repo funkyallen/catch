@@ -2,7 +2,7 @@
 
 Code and public data for reproducing the CATCH experiments:
 
-**CATCH: Audit-Oriented Complementary Neural-Tree Fusion for Label-Scarce
+**CATCH: Transparent Neural-Tree Complementation for Failure-Aware Label-Scarce
 Tabular Regression**
 
 Repository: https://github.com/funkyallen/catch
@@ -80,9 +80,11 @@ set: CATCH, AutoGluon, TabM, CatBoost, XGBoost, LightGBM, LapBoost, VIME,
 COREG, RankUp, and UCVME. TabPFN-v3 is an optional external reference and is
 not bundled with this code-and-data package.
 
-The ablation runner also exposes `CATCH-rho0-complement`, a fixed-`rho=0`
-eta-complement control for measuring the net contribution of the final scalar
-rho readout. The OOF audit runner can include the same control.
+The ablation runner distinguishes two final-readout controls. `CATCH-no-CWLS-fusion`
+keeps the eta-normalized complement but replaces the learned constrained readout
+with a fixed 0.5 neural/complement blend. `CATCH-rho0-complement` fixes `rho=0`
+and therefore tests the complement-only endpoint. The OOF audit runner can
+include the same complement-only control.
 
 The optional OpenML-50 runner is a focused CATCH-vs-AutoGluon expansion:
 50 OpenML data IDs, 10 seeds, and two methods. The first local build can use a

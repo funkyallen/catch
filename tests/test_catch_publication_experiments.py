@@ -184,14 +184,48 @@ class CatchPublicationExperimentTest(unittest.TestCase):
                             "Time": 1.0,
                         }
                     )
+        external_datasets = [
+            "external_validation20/OpenMLEV20_41022_Short_Track_Speed_Skating.csv",
+            "external_validation20/OpenMLEV20_41187_mauna_loa_atmospheric_co2.csv",
+            "external_validation20/OpenMLEV20_31_credit_g.csv",
+        ]
+        for dataset_idx, dataset in enumerate(external_datasets):
+            for seed in [42, 123]:
+                for method, values in {"CATCH": [0.91, 0.92, 0.55], "AutoGluon": [0.90, 0.91, 0.51]}.items():
+                    value = values[dataset_idx] + (0.001 if seed == 123 else 0.0)
+                    rows.append(
+                        {
+                            "Experiment": "external_validation",
+                            "Protocol": "default",
+                            "Dataset": dataset,
+                            "Method": method,
+                            "Seed": seed,
+                            "Status": "ok",
+                            "R2": value,
+                            "RMSE": 1.0 - value,
+                            "MAE": 0.5 - value / 10.0,
+                            "Time": 1.0,
+                        }
+                    )
         seed_df = pd.DataFrame(rows)
 
         ds = analysis.dataset_means(seed_df)
         main_ds = analysis.main_default_dataset_means(ds)
         ablation_ds = analysis.catch_ablation_dataset_means(ds)
+        external_ordinary_ds = analysis.external_validation_ordinary_dataset_means(ds)
+        external_stress_ds = analysis.external_validation_stress_dataset_means(ds)
         openml50_ds = analysis.openml50_dataset_means(ds)
         main_summary = analysis.summarize_methods(main_ds, analysis.PUBLIC_MAIN_METHODS)
         ablation_summary = analysis.summarize_methods(ablation_ds, analysis.CATCH_ABLATION_METHODS)
+        external_ordinary_summary = analysis.summarize_methods_with_ranks(
+            external_ordinary_ds,
+            analysis.EXTERNAL_VALIDATION_METHODS,
+        )
+        external_stress_summary = analysis.summarize_methods_with_ranks(
+            external_stress_ds,
+            analysis.EXTERNAL_VALIDATION_METHODS,
+        )
+        external_ordinary_pairwise = analysis.pairwise_vs_reference_compact(external_ordinary_ds)
         openml50_summary = analysis.summarize_methods(openml50_ds, analysis.OPENML50_METHODS)
         simple_summary = analysis.summarize_methods(
             analysis.clone_tree_on_y(main_ds),
@@ -208,6 +242,11 @@ class CatchPublicationExperimentTest(unittest.TestCase):
         self.assertIn("UCVME", set(main_summary["Method"]))
         self.assertIn("CATCH-no-U", set(ablation_summary["Method"]))
         self.assertIn("CATCH-no-support-variance", set(ablation_summary["Method"]))
+        self.assertEqual(external_ordinary_ds["Dataset"].nunique(), 2)
+        self.assertEqual(external_stress_ds["Dataset"].nunique(), 1)
+        self.assertIn("Top3_Count", set(external_ordinary_summary.columns))
+        self.assertEqual(int(external_stress_summary.loc[external_stress_summary["Method"].eq("CATCH"), "Best_Count"].iloc[0]), 1)
+        self.assertIn("Holm_Wilcoxon_p", set(external_ordinary_pairwise.columns))
         self.assertIn("AutoGluon", set(openml50_summary["Method"]))
         self.assertIn("Tree-on-Y", set(simple_summary["Method"]))
         self.assertIn("NN+Tree-Avg", set(simple_summary["Method"]))
